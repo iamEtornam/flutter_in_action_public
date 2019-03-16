@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:weather_app/models/src/app_settings.dart' as settings;
+import 'package:weather_app/models/src/app_settings.dart';
 import 'package:weather_app/models/src/weather.dart';
 
 // Used to fake data.
@@ -9,7 +10,7 @@ class WeatherDataHelper {
   DateTime startDateTime;
   DateTime dailyDate;
   var _random = new math.Random();
-  List<String> cities = settings.allCities;
+  List<City> cities = settings.allAddedCities;
 
   WeatherDataHelper() {
     startDateTime = new DateTime.utc(_today.year, _today.month, _today.day, 0);
@@ -47,7 +48,7 @@ class WeatherDataHelper {
     return description;
   }
 
-  ForecastDay dailyForecastGenerator(String city, int low, int high) {
+  ForecastDay dailyForecastGenerator(City city, int low, int high) {
     List<Weather> forecasts = [];
     int runningMin = 555;
     int runningMax = -555;
@@ -80,7 +81,7 @@ class WeatherDataHelper {
     return forecastDay;
   }
 
-  Forecast generateTenDayForecast(String city) {
+  Forecast generateTenDayForecast(City city) {
     List<ForecastDay> tenDayForecast = [];
 
     List.generate(10, (int index) {

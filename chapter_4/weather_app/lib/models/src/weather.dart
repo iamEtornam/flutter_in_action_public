@@ -1,5 +1,7 @@
+import 'package:weather_app/models/src/app_settings.dart';
+
 class Forecast {
-  String city;
+  City city;
   List<ForecastDay> days;
 
   Forecast({this.city, this.days});
@@ -23,7 +25,6 @@ class ForecastDay {
       // 0 == midnight
       return self.hourlyWeather.last;
     }
-
     return self.hourlyWeather
         .firstWhere((Weather w) => w.dateTime.hour >= hour);
   }
@@ -32,7 +33,7 @@ class ForecastDay {
 }
 
 class Weather {
-  String city;
+  City city;
   DateTime dateTime;
   Temperature temperature;
   WeatherDescription description;

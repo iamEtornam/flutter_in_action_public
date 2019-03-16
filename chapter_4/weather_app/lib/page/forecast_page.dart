@@ -7,6 +7,7 @@ import 'package:weather_app/models/src/weather.dart';
 import 'package:weather_app/utils/date_utils.dart';
 import 'package:weather_app/utils/flutter_ui_utils.dart' as ui;
 import 'package:weather_app/utils/forecast_animation_utils.dart' as utils;
+import 'package:weather_app/utils/math_utils.dart';
 import 'package:weather_app/widget/clouds_background.dart';
 import 'package:weather_app/widget/color_transition_box.dart';
 import 'package:weather_app/widget/color_transition_text.dart';
@@ -45,6 +46,7 @@ class _ForecastPageState extends State<ForecastPage>
   TweenSequence<Offset> _cloudPositionOffsetTween;
   ForecastAnimationState currentAnimationState;
   ForecastAnimationState nextAnimationState;
+  Offset verticalDragStart;
 
   @override
   void initState() {
@@ -65,7 +67,7 @@ class _ForecastPageState extends State<ForecastPage>
   }
 
   void _render() {
-    _forecastController = new ForecastController(widget.settings.selectedCity);
+    _forecastController = new ForecastController(widget.settings.activeCity);
     var startTime = _forecastController.selectedHourlyTemperature.dateTime.hour;
     var startTabIndex = utils.hours.indexOf(startTime);
     currentAnimationState =
@@ -74,6 +76,7 @@ class _ForecastPageState extends State<ForecastPage>
   }
 
   void _handleStateChange(int activeIndex) {
+    if (activeIndex == activeTabIndex) return;
     nextAnimationState =
         _forecastController.getDataForNextAnimationState(activeIndex);
     _buildAnimationController();
@@ -82,6 +85,15 @@ class _ForecastPageState extends State<ForecastPage>
     setState(() => activeTabIndex = activeIndex);
     // for next time the animation fires
     currentAnimationState = nextAnimationState;
+  }
+
+  void _handleDragEnd(DragUpdateDetails d, BuildContext context) {
+    var screenHeight = MediaQuery.of(context).size.height;
+    var dragEnd = d.globalPosition.dy;
+    var percentage = (dragEnd / screenHeight) * 100.0;
+    var scaleToTimesOfDay = (percentage ~/ 12).toInt();
+    if (scaleToTimesOfDay > 7) scaleToTimesOfDay = 7;
+    _handleStateChange(scaleToTimesOfDay);
   }
 
   void _initAnimation() {
@@ -210,7 +222,7 @@ class _ForecastPageState extends State<ForecastPage>
         child: TransitionAppbar(
           animation: _backgroundColorTween.animate(_animationController),
           title: ColorTransitionText(
-            text: _forecastController.selectedHourlyTemperature.city,
+            text: _forecastController.selectedHourlyTemperature.city.name,
             style: Theme.of(context).textTheme.headline,
             animation: _textColorTween.animate(_animationController),
           ),
@@ -218,39 +230,52 @@ class _ForecastPageState extends State<ForecastPage>
           leadingAction: widget.menu,
         ),
       ),
-      body: ColorTransitionBox(
-        animation: _backgroundColorTween.animate(_animationController),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 32.0),
-          child: Stack(
-            children: <Widget>[
-              SlideTransition(
-                position: _positionOffsetTween.animate(
-                  _animationController.drive(
-                    CurveTween(curve: Curves.bounceOut),
+      body: GestureDetector(
+        onDoubleTap: () {
+          setState(() {
+            widget.settings.selectedTemperature == TemperatureUnit.celsius
+                ? widget.settings.selectedTemperature =
+                    TemperatureUnit.fahrenheit
+                : widget.settings.selectedTemperature = TemperatureUnit.celsius;
+          });
+        },
+        onVerticalDragUpdate: (v) {
+          _handleDragEnd(v, context);
+        },
+        child: ColorTransitionBox(
+          animation: _backgroundColorTween.animate(_animationController),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 32.0),
+            child: Stack(
+              children: <Widget>[
+                SlideTransition(
+                  position: _positionOffsetTween.animate(
+                    _animationController.drive(
+                      CurveTween(curve: Curves.bounceOut),
+                    ),
+                  ),
+                  child:
+                      Sun(animation: _colorTween.animate(_animationController)),
+                ),
+                SlideTransition(
+                  position: _cloudPositionOffsetTween.animate(
+                      _weatherConditionAnimationController
+                          .drive(CurveTween(curve: Curves.bounceOut))),
+                  child: Clouds(
+                    isRaining: isRaining,
+                    animation: _cloudColorTween.animate(_animationController),
                   ),
                 ),
-                child:
-                    Sun(animation: _colorTween.animate(_animationController)),
-              ),
-              SlideTransition(
-                position: _cloudPositionOffsetTween.animate(
-                    _weatherConditionAnimationController
-                        .drive(CurveTween(curve: Curves.bounceOut))),
-                child: Clouds(
-                  isRaining: isRaining,
-                  animation: _cloudColorTween.animate(_animationController),
+                Column(
+                  verticalDirection: VerticalDirection.up,
+                  children: <Widget>[
+                    forecastContent,
+                    mainContent,
+                    Flexible(child: timePickerRow),
+                  ],
                 ),
-              ),
-              Column(
-                verticalDirection: VerticalDirection.up,
-                children: <Widget>[
-                  forecastContent,
-                  mainContent,
-                  Flexible(child: timePickerRow),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

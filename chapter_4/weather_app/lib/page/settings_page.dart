@@ -16,12 +16,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  List<String> get temperatureOptions =>
-      TemperatureUnit.values.map((u) => u.toString()).toList();
+  List<String> get temperatureOptions => TemperatureUnit.values
+      .map((TemperatureUnit u) => u.toString().split(".")[1])
+      .toList();
 
-  void _handleCityActiveChange(bool b, String city) {
+  void _handleCityActiveChange(bool b, City city) {
     setState(() {
-      widget.settings.selectedCities[city] = b;
+      city.active = b;
     });
   }
 
@@ -30,6 +31,17 @@ class SettingsPageState extends State<SettingsPage> {
       widget.settings.selectedTemperature =
           TemperatureUnit.values.toList()[selection];
     });
+  }
+
+  void _handleDismiss(DismissDirection dir, City removedCity) {
+    print(dir);
+    if (dir == DismissDirection.endToStart) {
+      allAddedCities.removeWhere((city) => city == removedCity);
+      if (widget.settings.activeCity == removedCity) {
+        widget.settings.activeCity =
+            allAddedCities.firstWhere((city) => city.active);
+      }
+    }
   }
 
   @override
@@ -55,16 +67,32 @@ class SettingsPageState extends State<SettingsPage> {
               onSelectionChanged: (int selection) =>
                   _handleTemperatureUnitChange(selection),
             ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text("Add new city"),
+              onTap: () => Navigator.of(context).pushNamed("/add-city"),
+            ),
+            Divider(),
             Expanded(
               child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: allCities.length,
+                  itemCount: allAddedCities.length,
                   itemBuilder: (BuildContext context, int index) {
-                    var city = allCities[index];
-                    return CheckboxListTile(
-                      value: widget.settings.selectedCities[city],
-                      title: Text(city),
-                      onChanged: (bool b) => _handleCityActiveChange(b, city),
+                    var city = allAddedCities[index];
+                    return Dismissible(
+                      onDismissed: (DismissDirection dir) =>
+                          _handleDismiss(dir, city),
+                      background: Container(
+                        child: Icon(Icons.delete_forever),
+                        decoration: BoxDecoration(color: Colors.red[700]),
+                      ),
+                      key: ValueKey(city),
+                      child: CheckboxListTile(
+                        value: city.active,
+                        title: Text(city.name),
+                        onChanged: (bool b) => _handleCityActiveChange(b, city),
+                      ),
                     );
                   }),
             )

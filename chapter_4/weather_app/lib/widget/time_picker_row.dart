@@ -8,20 +8,29 @@ class TimePickerRow extends StatefulWidget {
   final Function onTabChange;
   final int startIndex;
 
-  const TimePickerRow({Key key, this.forecastController, this.tabItems, this.onTabChange, this.startIndex})
+  const TimePickerRow(
+      {Key key,
+      this.forecastController,
+      this.tabItems,
+      this.onTabChange,
+      this.startIndex})
       : super(key: key);
 
   @override
   _TimePickerRowState createState() => _TimePickerRowState();
 }
 
-class _TimePickerRowState extends State<TimePickerRow> with SingleTickerProviderStateMixin {
+class _TimePickerRowState extends State<TimePickerRow>
+    with SingleTickerProviderStateMixin {
   TabController _tabController;
-  int activeTabIndex;
 
   @override
   void initState() {
-    _tabController = TabController(length: utils.hours.length, vsync: this, initialIndex: widget.startIndex);
+    _tabController = TabController(
+      length: utils.hours.length,
+      vsync: this,
+      initialIndex: widget.startIndex,
+    );
     _tabController.addListener(handleTabChange);
     super.initState();
   }
@@ -29,9 +38,12 @@ class _TimePickerRowState extends State<TimePickerRow> with SingleTickerProvider
   void handleTabChange() {
     if (_tabController.indexIsChanging) return;
     widget.onTabChange(_tabController.index);
-    setState(() {
-      activeTabIndex = _tabController.index;
-    });
+  }
+
+  @override
+  void didUpdateWidget(TimePickerRow oldWidget) {
+    _tabController.animateTo(widget.startIndex);
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

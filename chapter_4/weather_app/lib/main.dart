@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:weather_app/models/src/app_settings.dart';
+import 'package:weather_app/page/add_city_page.dart';
 import 'package:weather_app/page/page_container.dart';
 import 'package:weather_app/styles.dart';
 
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme,
       home: PageContainer(settings: settings),
+      routes: {"/add-city": (context) => AddNewCityPage(settings: settings)},
     );
   }
 }

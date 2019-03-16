@@ -21,23 +21,26 @@ class _PageContainerState extends State<PageContainer> {
 
   PopupMenuButton get citiesMenu {
     return PopupMenuButton(
-      elevation: 0.0,
-      icon: Icon(
-        Icons.location_city,
-        color: AppColor.textColorDark,
-      ),
-      onSelected: (selection) =>
-          setState(() => settings.selectedCity = selection),
-      itemBuilder: (BuildContext context) {
-        return settings.selectedCities.entries
-            .where((MapEntry<String, bool> entry) => entry.value)
-            .map((MapEntry<String, bool> entry) => PopupMenuItem(
-                  value: entry.key,
-                  child: Text(entry.key),
-                ))
-            .toList();
-      },
-    );
+        elevation: 0.0,
+        icon: Icon(
+          Icons.location_city,
+          color: AppColor.textColorDark,
+        ),
+        onSelected: (selection) {
+          setState(() {
+            settings.activeCity =
+                allAddedCities.firstWhere((city) => city.name == selection);
+          });
+        },
+        itemBuilder: (BuildContext context) {
+          return allAddedCities
+              .where((city) => city.active)
+              .map((City city) => PopupMenuItem(
+                    value: city.name,
+                    child: Text(city.name),
+                  ))
+              .toList();
+        });
   }
 
   FlatButton get settingsButton {
