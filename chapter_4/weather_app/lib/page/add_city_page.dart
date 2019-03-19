@@ -49,12 +49,13 @@ class _AddNewCityPageState extends State<AddNewCityPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FlatButton(
-                      textColor: Colors.red[400],
-                      child: Text("Cancel"),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
+                        textColor: Colors.red[400],
+                        child: Text("Cancel"),
+                        onPressed: () async {
+                          if (await _onWillPop()) {
+                            Navigator.of(context).pop(false);
+                          }
+                        }),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -81,7 +82,7 @@ class _AddNewCityPageState extends State<AddNewCityPage> {
 
   Widget get _titleField {
     return Padding(
-        padding: const EdgeInsets.only(top: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: TextFormField(
           onSaved: (String val) => _newCity.name = val,
           decoration: InputDecoration(
@@ -96,13 +97,12 @@ class _AddNewCityPageState extends State<AddNewCityPage> {
               return "Field cannot be left blank";
             }
           },
-
         ));
   }
 
   Widget get _stateName {
     return Padding(
-        padding: const EdgeInsets.only(top: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: TextFormField(
           onSaved: (String val) => print(val),
           decoration: InputDecoration(
@@ -119,19 +119,22 @@ class _AddNewCityPageState extends State<AddNewCityPage> {
   }
 
   Widget get _countryDropdownField {
-    return DropDownExpanded<Country>(
-      isExpanded: true,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(),
-        labelText: "Country",
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: DropDownExpanded<Country>(
+        isExpanded: true,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: "Country",
+        ),
+        value: _newCity.country ?? Country.AD,
+        onChanged: (Country newSelection) {
+          setState(() => _newCity.country = newSelection);
+        },
+        items: Country.ALL.map((Country country) {
+          return DropdownMenuItem(value: country, child: Text(country.name));
+        }).toList(),
       ),
-      value: _newCity.country ?? Country.AD,
-      onChanged: (Country newSelection) {
-        setState(() => _newCity.country = newSelection);
-      },
-      items: Country.ALL.map((Country country) {
-        return DropdownMenuItem(value: country, child: Text(country.name));
-      }).toList(),
     );
   }
 

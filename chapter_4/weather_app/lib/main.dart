@@ -40,7 +40,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme,
       home: PageContainer(settings: settings),
-      routes: {"/add-city": (context) => AddNewCityPage(settings: settings)},
     );
   }
 }

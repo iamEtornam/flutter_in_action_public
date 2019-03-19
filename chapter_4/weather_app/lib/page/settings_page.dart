@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/models/src/app_settings.dart';
 import 'package:weather_app/models/src/weather.dart';
+import 'package:weather_app/page/add_city_page.dart';
 import 'package:weather_app/styles.dart';
 import 'package:weather_app/widget/segmented_control.dart';
 
@@ -71,7 +72,13 @@ class SettingsPageState extends State<SettingsPage> {
             ListTile(
               leading: Icon(Icons.add),
               title: Text("Add new city"),
-              onTap: () => Navigator.of(context).pushNamed("/add-city"),
+              onTap: () {
+                Navigator.of(context).push(new MaterialPageRoute(
+                    fullscreenDialog: true,
+                    builder: (BuildContext context) {
+                      return AddNewCityPage();
+                    }));
+              },
             ),
             Divider(),
             Expanded(
