@@ -6,8 +6,12 @@ void main() {
   var burgerStand = new GoodBurgerRestaurant();
   burgerStand.turnOnTranslator();
 
-  burgerStand.newOrder(55);
-  burgerStand.newOrder(12);
+  burgerStand.newOrder(555);
+  burgerStand.newOrder(121);
+  burgerStand.newOrder(1253);
+  burgerStand.newOrder(3);
+  burgerStand.newOrder(887);
+  burgerStand.newOrder(66);
 }
 
 class GoodBurgerRestaurant {
@@ -18,8 +22,8 @@ class GoodBurgerRestaurant {
 
   void turnOnTranslator() {
     onNewBurgerOrder
-      .transform(new BeepBoopTranslator())
-      .listen((data) => cook.prepareOrder(data));
+        .transform(new BeepBoopTranslator())
+        .listen((data) => cook.prepareOrder(data));
   }
 
   void newOrder(int orderNum) {
@@ -29,6 +33,6 @@ class GoodBurgerRestaurant {
 
 class Cook {
   void prepareOrder(newOrder) {
-    print("preparing $newOrder");
+    print("preparing meal $newOrder");
   }
 }
